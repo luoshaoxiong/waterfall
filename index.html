@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>瀑布流布局</title>
+    <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        main {
+            position: relative;
+            top: 0;
+            left: 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        img {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+
+    </main>
+</body>
+<script>
+    function throttle(fn, delay) {
+        var hasFinished = true;
+        return function() {
+            if(!hasFinished) {return;}
+
+            hasFinished = false;
+            var self = this,
+                args = arguments;
+            setTimeout(function() {
+                fn.apply(self, args);
+                hasFinished = true;
+            }, delay);
+        }
+    }
+    $(window).on('resize', function() {
+
+    })
+    // 固定每个图片的宽度，计算出列数
+    // 每列取最短高度，放入
+    var width = 200,
+        maxWidth = 800,
+        col = Math.floor(maxWidth / width),
+        clientHeightArr = [];
+    for(var i=0;i<col;i++) {
+        clientHeightArr.push(0);
+    }
+
+    // 每个图片加载完之后获取高度，然后放入最短高度列，并更新最短高度列数据
+    $('img').on('load', function() {
+        var minIndex = findMin(clientHeightArr);
+        $(this).css({
+            position: 'absolute',
+            left: minIndex*width,
+            top: clientHeightArr[minIndex]
+        });
+        clientHeightArr[minIndex] += $(this).offset().height;
+    })
+
+    function findMin(arr) {
+        var minIndex = 0,
+            minValue = arr[0];
+        for(var i=1;i<arr.length;i++) {
+            if(minValue>arr[i]) {
+                minIndex = i;
+            }
+        }
+        return minIndex;
+    }
+</script>
+</html>
