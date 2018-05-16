@@ -21,16 +21,96 @@
             margin: 0 auto;
         }
         img {
-            width: 200px;
+            display: inline-block;
+            width: 100px;
+            margin: 10px;
         }
     </style>
 </head>
 <body>
     <main>
-
+        <img src="http://via.placeholder.com/100x100">
+        <img src="http://via.placeholder.com/100x60">
+        <img src="http://via.placeholder.com/100x80">
+        <img src="http://via.placeholder.com/100x90">
+        <img src="http://via.placeholder.com/100x66">
+        <img src="http://via.placeholder.com/100x200">
+        <img src="http://via.placeholder.com/100x150">
+        <img src="http://via.placeholder.com/100x170">
+        <img src="http://via.placeholder.com/100x88">
+        <img src="http://via.placeholder.com/100x180">
+        <img src="http://via.placeholder.com/100x110">
+        <img src="http://via.placeholder.com/100x30">
+        <img src="http://via.placeholder.com/100x140">
+        <img src="http://via.placeholder.com/100x180">
+        <img src="http://via.placeholder.com/100x100">
+        <img src="http://via.placeholder.com/100x120">
+        <img src="http://via.placeholder.com/100x60">
+        <img src="http://via.placeholder.com/100x50">
+        <img src="http://via.placeholder.com/100x40">
     </main>
 </body>
 <script>
+
+    var waterfall = function(isFirstLoad) {
+            function start() {
+                init();
+                bind();
+            };
+            function init() {
+                // 固定每个图片的宽度，计算出列数
+                this.width = $('img').outerWidth(true);
+                this.maxWidth = $('main').width();
+                this.col = Math.floor(this.maxWidth / this.width);
+                console.log(this.maxWidth);
+                this.clientHeightArr = [];
+                for(var i=0;i<this.col;i++) {
+                    this.clientHeightArr.push(0);
+                }
+            };
+            function bind() {
+                // 每个图片加载完之后获取高度，然后放入最短高度列，并更新最短高度列数据
+                if(isFirstLoad) {
+                    $('img').on('load', function(){
+                        layout($(this))
+                    });
+                } else {
+                    $('img').each(function(){
+                        layout($(this))
+                    });
+                }
+            };
+            function layout($node) {
+                var minIndex = findMin(this.clientHeightArr);
+                $node.css({
+                    position: 'absolute',
+                    left: minIndex*this.width,
+                    top: this.clientHeightArr[minIndex]
+                });
+                this.clientHeightArr[minIndex] += $node.height() + 10;
+            };
+            function findMin(arr) {
+                var minIndex = 0,
+                    minValue = arr[0];
+                for(var i=1;i<arr.length;i++) {
+                    if(minValue>arr[i]) {
+                        minIndex = i;
+                        minValue = arr[i];
+                    }
+                }
+                return minIndex;
+            }
+            return {
+                start: start
+            };
+        }
+
+    $(window).on('resize', throttle(function() {
+        waterfall(false).start();
+    }, 300));
+
+    waterfall(true).start();
+
     function throttle(fn, delay) {
         var hasFinished = true;
         return function() {
@@ -45,39 +125,7 @@
             }, delay);
         }
     }
-    $(window).on('resize', function() {
 
-    })
-    // 固定每个图片的宽度，计算出列数
-    // 每列取最短高度，放入
-    var width = 200,
-        maxWidth = 800,
-        col = Math.floor(maxWidth / width),
-        clientHeightArr = [];
-    for(var i=0;i<col;i++) {
-        clientHeightArr.push(0);
-    }
 
-    // 每个图片加载完之后获取高度，然后放入最短高度列，并更新最短高度列数据
-    $('img').on('load', function() {
-        var minIndex = findMin(clientHeightArr);
-        $(this).css({
-            position: 'absolute',
-            left: minIndex*width,
-            top: clientHeightArr[minIndex]
-        });
-        clientHeightArr[minIndex] += $(this).offset().height;
-    })
-
-    function findMin(arr) {
-        var minIndex = 0,
-            minValue = arr[0];
-        for(var i=1;i<arr.length;i++) {
-            if(minValue>arr[i]) {
-                minIndex = i;
-            }
-        }
-        return minIndex;
-    }
 </script>
 </html>
